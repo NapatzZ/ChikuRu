@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dev tooling
+        run: npm install --no-audit --no-fund
+      - name: ESLint
+        run: npm run lint
+
+  static-check:
+    name: Static page check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify entry points exist
+        run: |
+          test -f index.html
+          test -f src/main.js
+          echo "entry points present"
+      - name: Reject official Chiikawa asset filenames
+        run: |
+          if git ls-files 'assets/**' | grep -Ei 'official|nagano' ; then
+            echo "::error::Do not commit official artwork"; exit 1
+          fi
+          echo "asset filename check passed"

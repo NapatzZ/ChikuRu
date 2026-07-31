@@ -1,0 +1,23 @@
+{
+  "name": "chikuru",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser arcade shooter — ENG COMMU term project",
+  "type": "module",
+  "scripts": {
+    "start": "npx --yes http-server -p 8080 -c-1 .",
+    "serve": "npm start",
+    "lint": "eslint \"src/**/*.js\"",
+    "lint:fix": "eslint --fix \"src/**/*.js\""
+  },
+  "keywords": [
+    "game",
+    "canvas",
+    "arcade",
+    "eng-commu"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^9.9.0"
+  }
+}
