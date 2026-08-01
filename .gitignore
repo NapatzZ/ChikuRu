@@ -26,3 +26,13 @@ Thumbs.db
 # Coverage / test output
 coverage/
 .nyc_output/
+
+# Local-only artwork: keep copyrighted images out of version control.
+# Placeholder art in the repo is SVG; raster drop-ins are ignored on purpose.
+assets/sprites/*.png
+assets/sprites/*.jpg
+assets/sprites/*.jpeg
+assets/sprites/*.webp
+assets/audio/*.mp3
+assets/audio/*.wav
+assets/audio/*.ogg
