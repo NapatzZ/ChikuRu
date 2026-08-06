@@ -1,6 +1,7 @@
 import { ARENA } from './config.js';
 import { createInput } from './input.js';
 import { Player } from './entities/player.js';
+import { createBulletPool, fireBullet, updateBullets, renderBullets } from './entities/bullet.js';
 
 /**
  * Orchestrator. Holds the world and delegates behaviour to entities/systems.
@@ -16,11 +17,13 @@ export class Game {
     this.debug = new URLSearchParams(window.location.search).has('debug');
 
     this.player = new Player();
+    this.bullets = createBulletPool();
   }
 
   restart() {
     this.time = 0;
     this.player.reset();
+    this.bullets.releaseAll();
     this.state = 'playing';
   }
 
@@ -28,8 +31,9 @@ export class Game {
     if (this.state === 'playing') {
       this.time += dt;
       this.player.update(dt, this.input);
-      // Shooting result is consumed by the bullet system (added in #4).
-      this._pendingShot = this.player.tryFire(this.input);
+      const shot = this.player.tryFire(this.input);
+      if (shot) fireBullet(this.bullets, shot);
+      updateBullets(this.bullets, dt);
     }
     this.input.endFrame();
   }
@@ -38,6 +42,7 @@ export class Game {
     const { ctx } = this;
     this.viewport.beginFrame();
     this.#drawBackdrop(ctx);
+    renderBullets(this.bullets, ctx);
     this.player.render(ctx, this.sprites);
     if (this.debug) this.#drawDebug(ctx, stats);
   }
