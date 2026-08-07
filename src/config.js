@@ -13,10 +13,10 @@ export const LOOP = Object.freeze({
 
 export const PLAYER = Object.freeze({
   radius: 22,
-  speed: 360,          // px/s
+  speed: 340,          // px/s — 360 felt twitchy in playtest
   startHearts: 3,
   invulnSeconds: 1.2,  // i-frames after taking a hit
-  fireRate: 7,         // shots/s
+  fireRate: 8,         // shots/s
   spawnY: 0.82         // fraction of arena height
 });
 
