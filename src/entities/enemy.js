@@ -87,6 +87,7 @@ export function updateEnemies(pool, dt, target, speedMul) {
     e.y += e.vy * dt;
     // keep horizontally on-screen; let them fall off the bottom naturally
     e.x = clamp(e.x, e.radius, ARENA.width - e.radius);
+    if (e.y > ARENA.height + e.radius + 40) pool.release(e);
   });
 }
 
