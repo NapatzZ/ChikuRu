@@ -1,9 +1,12 @@
 import { ARENA, SPAWN } from './config.js';
 import { createInput } from './input.js';
+import { createEventBus } from './util/events.js';
 import { Player } from './entities/player.js';
 import { createBulletPool, fireBullet, updateBullets, renderBullets } from './entities/bullet.js';
 import { createEnemyPool, updateEnemies, renderEnemies } from './entities/enemy.js';
 import { createSpawner } from './systems/spawner.js';
+import { resolveBulletsVsEnemies, resolveEnemiesVsPlayer } from './systems/collision.js';
+import { createScoreboard } from './systems/scoreboard.js';
 
 /**
  * Orchestrator. Holds the world and delegates behaviour to entities/systems.
@@ -14,6 +17,7 @@ export class Game {
     this.viewport = viewport;
     this.ctx = viewport.ctx;
     this.input = createInput(viewport);
+    this.bus = createEventBus();
     this.state = 'playing'; // menu | playing | paused | gameover  (grows in Sprint 4)
     this.time = 0;
     this.debug = new URLSearchParams(window.location.search).has('debug');
@@ -21,6 +25,7 @@ export class Game {
     this.player = new Player();
     this.bullets = createBulletPool();
     this.enemies = createEnemyPool();
+    this.scoreboard = createScoreboard(this.bus);
 
     // Sprint 2: constant difficulty. The wave director replaces these in #11.
     this.spawner = createSpawner(this.enemies, {
@@ -28,6 +33,10 @@ export class Game {
       pickType: () => 'chiikawa'
     });
     this.speedMul = 1;
+
+    this.bus.on('playerHit', () => {
+      if (this.player.hearts <= 0) this.state = 'gameover';
+    });
   }
 
   restart() {
@@ -36,6 +45,7 @@ export class Game {
     this.bullets.releaseAll();
     this.enemies.releaseAll();
     this.spawner.reset();
+    this.scoreboard.reset();
     this.state = 'playing';
   }
 
@@ -49,6 +59,14 @@ export class Game {
 
       this.spawner.update(dt, this);
       updateEnemies(this.enemies, dt, this.player, this.speedMul);
+
+      resolveBulletsVsEnemies(this.bullets, this.enemies, this.bus);
+      resolveEnemiesVsPlayer(this.enemies, this.player, this.bus);
+    } else if (this.state === 'gameover') {
+      // keep rendering; wait for a restart input
+      if (this.input.justPressed('confirm') || this.input.justPressed('fire')) {
+        this.restart();
+      }
     }
     this.input.endFrame();
   }
@@ -60,6 +78,8 @@ export class Game {
     renderEnemies(this.enemies, ctx, this.sprites);
     renderBullets(this.bullets, ctx);
     this.player.render(ctx, this.sprites);
+    this.#drawScorePlain(ctx);
+    if (this.state === 'gameover') this.#drawGameOver(ctx);
     if (this.debug) this.#drawDebug(ctx, stats);
   }
 
@@ -75,6 +95,28 @@ export class Game {
     ctx.strokeRect(1, 1, ARENA.width - 2, ARENA.height - 2);
   }
 
+  // Placeholder readout until the real HUD lands in #9.
+  #drawScorePlain(ctx) {
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = '18px system-ui, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`Score ${this.scoreboard.state.score}`, 14, 28);
+    ctx.textAlign = 'right';
+    ctx.fillText('♥'.repeat(Math.max(0, this.player.hearts)), ARENA.width - 14, 28);
+  }
+
+  #drawGameOver(ctx) {
+    ctx.fillStyle = 'rgba(12,10,24,0.72)';
+    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+    ctx.fillStyle = '#fdf6ff';
+    ctx.textAlign = 'center';
+    ctx.font = '48px system-ui, sans-serif';
+    ctx.fillText('Game Over', ARENA.width / 2, ARENA.height / 2 - 20);
+    ctx.font = '20px system-ui, sans-serif';
+    ctx.fillText(`Score ${this.scoreboard.state.score}`, ARENA.width / 2, ARENA.height / 2 + 18);
+    ctx.fillText('Press Enter to play again', ARENA.width / 2, ARENA.height / 2 + 52);
+  }
+
   #drawDebug(ctx, stats) {
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.font = '14px ui-monospace, monospace';
@@ -83,9 +125,9 @@ export class Game {
     const ups = stats ? stats.updates : 0;
     ctx.fillText(
       `state=${this.state}  t=${this.time.toFixed(1)}s  fps=${fps}  steps/frame=${ups}  ` +
-        `hearts=${this.player.hearts}  enemies=${this.enemies.activeCount}`,
+        `hearts=${this.player.hearts}  enemies=${this.enemies.activeCount}  kills=${this.scoreboard.state.kills}`,
       12,
-      20
+      44
     );
   }
 }
