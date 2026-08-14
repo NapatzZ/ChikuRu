@@ -1,4 +1,4 @@
-import { ARENA, SPAWN } from './config.js';
+import { ARENA, SPAWN, PLAYER } from './config.js';
 import { createInput } from './input.js';
 import { createEventBus } from './util/events.js';
 import { Player } from './entities/player.js';
@@ -7,6 +7,7 @@ import { createEnemyPool, updateEnemies, renderEnemies } from './entities/enemy.
 import { createSpawner } from './systems/spawner.js';
 import { resolveBulletsVsEnemies, resolveEnemiesVsPlayer } from './systems/collision.js';
 import { createScoreboard } from './systems/scoreboard.js';
+import { createHud } from './ui/hud.js';
 
 /**
  * Orchestrator. Holds the world and delegates behaviour to entities/systems.
@@ -26,6 +27,8 @@ export class Game {
     this.bullets = createBulletPool();
     this.enemies = createEnemyPool();
     this.scoreboard = createScoreboard(this.bus);
+    this.hud = createHud(this.bus);
+    this.wave = 0;
 
     // Sprint 2: constant difficulty. The wave director replaces these in #11.
     this.spawner = createSpawner(this.enemies, {
@@ -46,6 +49,7 @@ export class Game {
     this.enemies.releaseAll();
     this.spawner.reset();
     this.scoreboard.reset();
+    this.hud.reset();
     this.state = 'playing';
   }
 
@@ -68,6 +72,7 @@ export class Game {
         this.restart();
       }
     }
+    this.hud.update(dt);
     this.input.endFrame();
   }
 
@@ -78,7 +83,14 @@ export class Game {
     renderEnemies(this.enemies, ctx, this.sprites);
     renderBullets(this.bullets, ctx);
     this.player.render(ctx, this.sprites);
-    this.#drawScorePlain(ctx);
+    this.hud.render(ctx, {
+      score: this.scoreboard.state.score,
+      hearts: this.player.hearts,
+      maxHearts: PLAYER.startHearts,
+      wave: this.wave,
+      multiplier: this.scoreboard.state.multiplier,
+      comboFill: 0
+    });
     if (this.state === 'gameover') this.#drawGameOver(ctx);
     if (this.debug) this.#drawDebug(ctx, stats);
   }
@@ -93,16 +105,6 @@ export class Game {
     ctx.strokeStyle = 'rgba(255,255,255,0.06)';
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, ARENA.width - 2, ARENA.height - 2);
-  }
-
-  // Placeholder readout until the real HUD lands in #9.
-  #drawScorePlain(ctx) {
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.font = '18px system-ui, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(`Score ${this.scoreboard.state.score}`, 14, 28);
-    ctx.textAlign = 'right';
-    ctx.fillText('♥'.repeat(Math.max(0, this.player.hearts)), ARENA.width - 14, 28);
   }
 
   #drawGameOver(ctx) {
