@@ -11,7 +11,7 @@ hearts go down, and the run ends at zero hearts.
 | #6 | Collision system | #23 | ✅ |
 | #7 | Scoreboard + points | #23 | ✅ |
 | #8 | Hearts / HP + game over | #23 | ✅ |
-| #9 | HUD | #24 | ⏳ |
+| #9 | HUD | #24 | ✅ |
 
 ## Standup log
 
@@ -24,12 +24,16 @@ hearts go down, and the run ends at zero hearts.
   event (`enemyKilled`, `enemyHit`, `playerHit`) instead of holding refs.
 - **Aug 13** — `scoreboard.js` on the bus; heart loss + `gameover` state with
   Enter/click to restart. Core loop closes end to end. Combo left at x1.
+- **Aug 14** — `ui/hud.js`: 6-digit score, heart pips, hit flash, floating
+  `+N` popups. Wired in; placeholder readout deleted.
+- **Aug 15** — Review fixes + retro. Sprint goal met.
 
-## Demo checkpoint (target)
+## Demo checkpoint ✅
 
 Chiikawa blobs drift in from the top and steer toward the player. Shooting them
 removes them and adds score; touching the player costs a heart; three hits ends
-the run with a restartable game-over overlay.
+the run with a restartable game-over overlay. HUD shows score, hearts and
+floating score popups.
 
 ## Notes
 
