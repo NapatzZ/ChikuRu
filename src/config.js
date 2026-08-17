@@ -29,7 +29,7 @@ export const BULLET = Object.freeze({
 
 /**
  * Enemy archetypes. `behaviour` picks the movement function in
- * `entities/enemy.js`. More types land in Sprint 3.
+ * `entities/enemy.js`. Extra fields are read by that behaviour only.
  */
 export const ENEMIES = Object.freeze({
   chiikawa: {
@@ -40,10 +40,44 @@ export const ENEMIES = Object.freeze({
     points: 100,
     turnRate: 1.4,     // rad/s toward the player
     color: '#f6ead0'
+  },
+  hachiware: {
+    behaviour: 'weave',
+    radius: 19,
+    speed: 120,
+    hp: 1,
+    points: 150,
+    weaveAmp: 96,      // px/s sideways
+    weaveFreq: 2.6,    // rad/s
+    color: '#bfe6f2'
+  },
+  usagi: {
+    behaviour: 'dasher',
+    radius: 17,
+    speed: 70,         // slow drift between dashes
+    hp: 1,
+    points: 200,
+    dashSpeed: 340,
+    dashEvery: 1.0,    // seconds between bursts
+    color: '#ffd8a8'
+  },
+  rakko: {
+    behaviour: 'drift',
+    radius: 30,
+    speed: 58,
+    hp: 3,
+    points: 300,
+    color: '#c9b8a8'
   }
 });
 
+/** Order used for interim random spawning until the wave director (#11). */
+export const ENEMY_TYPES = Object.freeze(['chiikawa', 'hachiware', 'usagi', 'rakko']);
+
 export const ENEMY_POOL_SIZE = 128;
+
+/** Sprite names the asset loader tries to fetch (#14). */
+export const SPRITE_NAMES = Object.freeze(['player', 'chiikawa', 'hachiware', 'usagi', 'rakko']);
 
 export const COMBO = Object.freeze({
   // Combo multiplier is stubbed at x1 in Sprint 2; full logic lands in #16.
