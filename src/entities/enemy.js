@@ -31,7 +31,8 @@ export function spawnEnemy(pool, type, x, y) {
   e.maxHp = def.hp;
   e.points = def.points;
   e.phase = Math.random() * TAU;
-  e.dashTimer = 0;
+  // Give dashers a beat before their first burst so they enter on the drift.
+  e.dashTimer = def.dashEvery ? def.dashEvery * 0.6 : 0;
   return e;
 }
 
