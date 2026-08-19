@@ -98,6 +98,8 @@ export class Game {
       multiplier: this.scoreboard.state.multiplier,
       comboFill: 0
     });
+    const banner = this.waves.banner();
+    if (banner && this.state === 'playing') this.#drawBanner(ctx, banner);
     if (this.state === 'gameover') this.#drawGameOver(ctx);
     if (this.debug) this.#drawDebug(ctx, stats);
   }
@@ -112,6 +114,15 @@ export class Game {
     ctx.strokeStyle = 'rgba(255,255,255,0.06)';
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, ARENA.width - 2, ARENA.height - 2);
+  }
+
+  #drawBanner(ctx, text) {
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.font = '700 40px system-ui, sans-serif';
+    ctx.fillText(text, ARENA.width / 2, ARENA.height * 0.32);
+    ctx.restore();
   }
 
   #drawGameOver(ctx) {
