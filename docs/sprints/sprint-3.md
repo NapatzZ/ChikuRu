@@ -8,7 +8,7 @@ enough feedback ("juice") + sound that hits land well.
 | Issue | Task | PR | Status |
 | --- | --- | --- | --- |
 | #10 | Enemy archetypes (hachiware, usagi, rakko) | #25 | ✅ |
-| #11 | Wave director + difficulty curve | #26 | ⏳ |
+| #11 | Wave director + difficulty curve | #26 | ✅ |
 | #12 | Particles + screen shake + hit-stop | #27 | ⏳ |
 | #13 | Procedural audio + mute | #28 | ⏳ |
 | #14 | Asset loader + sprite fallback | #28 | ⏳ |
@@ -20,6 +20,10 @@ enough feedback ("juice") + sound that hits land well.
   from #5, so this was a one-file diff plus tuning.
 - **Aug 18** — Interim weighted-random spawn mix `[6,4,3,1]` so we can playtest
   all four before the curve lands.
+- **Aug 19** — `waves.js` director: wave every 20 s, interval `*= 0.86`/wave
+  (floor 0.38 s), enemy speed `+7%`/wave (cap x2.2), type weights lerp
+  `[8,3,1,0] → [3,5,4,3]` over 8 waves. `game.js` reads `speedMul`/`wave`;
+  spawner reads `interval`/`pickType`. Big `WAVE N` banner on change.
 
 ## Reference estimate (from Sprint 2 retro)
 
