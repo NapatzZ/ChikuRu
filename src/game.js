@@ -1,13 +1,15 @@
-import { ARENA, PLAYER } from './config.js';
+import { ARENA, PLAYER, JUICE, ENEMIES } from './config.js';
 import { createInput } from './input.js';
 import { createEventBus } from './util/events.js';
 import { Player } from './entities/player.js';
 import { createBulletPool, fireBullet, updateBullets, renderBullets } from './entities/bullet.js';
 import { createEnemyPool, updateEnemies, renderEnemies } from './entities/enemy.js';
+import { createParticlePool, emitBurst, updateParticles, renderParticles } from './entities/particle.js';
 import { createSpawner } from './systems/spawner.js';
 import { createWaveDirector } from './systems/waves.js';
 import { resolveBulletsVsEnemies, resolveEnemiesVsPlayer } from './systems/collision.js';
 import { createScoreboard } from './systems/scoreboard.js';
+import { createEffects } from './systems/effects.js';
 import { createHud } from './ui/hud.js';
 
 /**
@@ -27,6 +29,9 @@ export class Game {
     this.player = new Player();
     this.bullets = createBulletPool();
     this.enemies = createEnemyPool();
+    this.particles = createParticlePool();
+    this.effects = createEffects();
+    this.cam = { ox: 0, oy: 0 };
     this.scoreboard = createScoreboard(this.bus);
     this.hud = createHud(this.bus);
 
@@ -38,7 +43,16 @@ export class Game {
     this.speedMul = 1;
     this.wave = 1;
 
-    this.bus.on('playerHit', () => {
+    this.bus.on('enemyKilled', ({ x, y, type }) => {
+      emitBurst(this.particles, x, y, JUICE.killBurst, ENEMIES[type].color);
+    });
+    this.bus.on('enemyHit', ({ x, y }) => {
+      emitBurst(this.particles, x, y, JUICE.killBurst, 'rgba(255,255,255,0.8)');
+    });
+    this.bus.on('playerHit', ({ x, y }) => {
+      emitBurst(this.particles, x, y, JUICE.hitBurst, '#ff5c8a');
+      this.effects.shake(JUICE.shakeOnHit.magnitude, JUICE.shakeOnHit.seconds);
+      this.effects.hitStop(JUICE.hitStopSeconds);
       if (this.player.hearts <= 0) this.state = 'gameover';
     });
   }
@@ -48,6 +62,8 @@ export class Game {
     this.player.reset();
     this.bullets.releaseAll();
     this.enemies.releaseAll();
+    this.particles.releaseAll();
+    this.effects.reset();
     this.spawner.reset();
     this.waves.reset();
     this.scoreboard.reset();
@@ -58,18 +74,23 @@ export class Game {
   }
 
   update(dt) {
-    if (this.state === 'playing') {
-      this.time += dt;
-      this.player.update(dt, this.input);
+    // Shake decays and hit-stop freezes the sim; both use real dt.
+    const { simDt, ox, oy } = this.effects.step(dt);
+    this.cam.ox = ox;
+    this.cam.oy = oy;
+
+    if (this.state === 'playing' && simDt > 0) {
+      this.time += simDt;
+      this.player.update(simDt, this.input);
       const shot = this.player.tryFire(this.input);
       if (shot) fireBullet(this.bullets, shot);
-      updateBullets(this.bullets, dt);
+      updateBullets(this.bullets, simDt);
 
-      this.waves.update(dt);
+      this.waves.update(simDt);
       this.speedMul = this.waves.speedMul;
       this.wave = this.waves.wave;
-      this.spawner.update(dt, this);
-      updateEnemies(this.enemies, dt, this.player, this.speedMul);
+      this.spawner.update(simDt, this);
+      updateEnemies(this.enemies, simDt, this.player, this.speedMul);
 
       resolveBulletsVsEnemies(this.bullets, this.enemies, this.bus);
       resolveEnemiesVsPlayer(this.enemies, this.player, this.bus);
@@ -79,6 +100,7 @@ export class Game {
         this.restart();
       }
     }
+    updateParticles(this.particles, simDt > 0 ? simDt : dt);
     this.hud.update(dt);
     this.input.endFrame();
   }
@@ -87,9 +109,15 @@ export class Game {
     const { ctx } = this;
     this.viewport.beginFrame();
     this.#drawBackdrop(ctx);
+    // Camera shake: the world moves with the offset; backdrop and HUD don't.
+    ctx.save();
+    ctx.translate(this.cam.ox, this.cam.oy);
     renderEnemies(this.enemies, ctx, this.sprites);
     renderBullets(this.bullets, ctx);
     this.player.render(ctx, this.sprites);
+    renderParticles(this.particles, ctx);
+    ctx.restore();
+
     this.hud.render(ctx, {
       score: this.scoreboard.state.score,
       hearts: this.player.hearts,
