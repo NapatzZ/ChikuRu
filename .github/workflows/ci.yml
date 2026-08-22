@@ -19,6 +19,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: ESLint
         run: npm run lint
+      - name: Headless smoke test
+        run: npm test
 
   static-check:
     name: Static page check
