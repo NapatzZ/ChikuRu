@@ -11,6 +11,8 @@ import { resolveBulletsVsEnemies, resolveEnemiesVsPlayer } from './systems/colli
 import { createScoreboard } from './systems/scoreboard.js';
 import { createEffects } from './systems/effects.js';
 import { createHud } from './ui/hud.js';
+import { drawMenu } from './ui/menu.js';
+import { drawPause, drawGameOver } from './ui/screens.js';
 
 /**
  * Orchestrator. Holds the world and delegates behaviour to entities/systems.
@@ -24,8 +26,10 @@ export class Game {
     this.audio = audio;
     this.input = createInput(viewport);
     this.bus = createEventBus();
-    this.state = 'playing'; // menu | playing | paused | gameover  (grows in Sprint 4)
+    this.state = 'menu'; // menu | playing | paused | gameover
     this.time = 0;
+    this.best = 0;        // wired to persistence in #17
+    this.isNewBest = false;
     this.debug = new URLSearchParams(window.location.search).has('debug');
 
     this.player = new Player();
@@ -58,10 +62,7 @@ export class Game {
       this.effects.shake(JUICE.shakeOnHit.magnitude, JUICE.shakeOnHit.seconds);
       this.effects.hitStop(JUICE.hitStopSeconds);
       this.audio?.play('playerHit');
-      if (this.player.hearts <= 0) {
-        this.state = 'gameover';
-        this.audio?.play('gameover');
-      }
+      if (this.player.hearts <= 0) this.#endRun();
     });
 
     this._prevWave = 1;
@@ -81,7 +82,20 @@ export class Game {
     this.speedMul = 1;
     this.wave = 1;
     this._prevWave = 1;
+    this.isNewBest = false;
     this.state = 'playing';
+  }
+
+  /** Pause when the window loses focus, but only mid-run. */
+  pauseForBlur() {
+    if (this.state === 'playing') this.state = 'paused';
+  }
+
+  #endRun() {
+    this.state = 'gameover';
+    this.isNewBest = this.scoreboard.state.score > this.best;
+    if (this.isNewBest) this.best = this.scoreboard.state.score;
+    this.audio?.play('gameover');
   }
 
   update(dt) {
@@ -91,6 +105,22 @@ export class Game {
     this.cam.oy = oy;
 
     if (this.input.justPressed('mute')) this.audio?.toggleMute();
+
+    if (this.state === 'menu') {
+      if (this.input.justPressed('confirm') || this.input.justPressed('fire')) {
+        this.restart();
+      }
+    } else if (this.state === 'paused') {
+      if (this.input.justPressed('pause') || this.input.justPressed('confirm')) {
+        this.state = 'playing';
+      }
+    } else if (this.state === 'gameover') {
+      if (this.input.justPressed('confirm') || this.input.justPressed('fire')) {
+        this.restart();
+      }
+    } else if (this.state === 'playing' && this.input.justPressed('pause')) {
+      this.state = 'paused';
+    }
 
     if (this.state === 'playing' && simDt > 0) {
       this.time += simDt;
@@ -114,13 +144,12 @@ export class Game {
 
       resolveBulletsVsEnemies(this.bullets, this.enemies, this.bus);
       resolveEnemiesVsPlayer(this.enemies, this.player, this.bus);
-    } else if (this.state === 'gameover') {
-      // keep rendering; wait for a restart input
-      if (this.input.justPressed('confirm') || this.input.justPressed('fire')) {
-        this.restart();
-      }
     }
-    updateParticles(this.particles, simDt > 0 ? simDt : dt);
+
+    // Particles keep animating on menus / game over, but freeze while paused.
+    if (this.state !== 'paused') {
+      updateParticles(this.particles, simDt > 0 ? simDt : dt);
+    }
     this.hud.update(dt);
     this.input.endFrame();
   }
@@ -138,18 +167,31 @@ export class Game {
     renderParticles(this.particles, ctx);
     ctx.restore();
 
-    this.hud.render(ctx, {
-      score: this.scoreboard.state.score,
-      hearts: this.player.hearts,
-      maxHearts: PLAYER.startHearts,
-      wave: this.wave,
-      multiplier: this.scoreboard.state.multiplier,
-      comboFill: 0,
-      muted: this.audio ? this.audio.muted : false
-    });
+    if (this.state === 'playing' || this.state === 'paused') {
+      this.hud.render(ctx, {
+        score: this.scoreboard.state.score,
+        hearts: this.player.hearts,
+        maxHearts: PLAYER.startHearts,
+        wave: this.wave,
+        multiplier: this.scoreboard.state.multiplier,
+        comboFill: 0,
+        muted: this.audio ? this.audio.muted : false
+      });
+    }
+
     const banner = this.waves.banner();
     if (banner && this.state === 'playing') this.#drawBanner(ctx, banner);
-    if (this.state === 'gameover') this.#drawGameOver(ctx);
+
+    if (this.state === 'menu') drawMenu(ctx, { best: this.best });
+    else if (this.state === 'paused') drawPause(ctx);
+    else if (this.state === 'gameover') {
+      drawGameOver(ctx, {
+        score: this.scoreboard.state.score,
+        best: this.best,
+        isNewBest: this.isNewBest
+      });
+    }
+
     if (this.debug) this.#drawDebug(ctx, stats);
   }
 
@@ -172,18 +214,6 @@ export class Game {
     ctx.font = '700 40px system-ui, sans-serif';
     ctx.fillText(text, ARENA.width / 2, ARENA.height * 0.32);
     ctx.restore();
-  }
-
-  #drawGameOver(ctx) {
-    ctx.fillStyle = 'rgba(12,10,24,0.72)';
-    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
-    ctx.fillStyle = '#fdf6ff';
-    ctx.textAlign = 'center';
-    ctx.font = '48px system-ui, sans-serif';
-    ctx.fillText('Game Over', ARENA.width / 2, ARENA.height / 2 - 20);
-    ctx.font = '20px system-ui, sans-serif';
-    ctx.fillText(`Score ${this.scoreboard.state.score}`, ARENA.width / 2, ARENA.height / 2 + 18);
-    ctx.fillText('Press Enter to play again', ARENA.width / 2, ARENA.height / 2 + 52);
   }
 
   #drawDebug(ctx, stats) {
