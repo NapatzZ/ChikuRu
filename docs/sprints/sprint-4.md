@@ -8,8 +8,8 @@ the playtest, and a repo that's ready to demo and grade.
 | Issue | Task | PR | Status |
 | --- | --- | --- | --- |
 | #15 | Menu / pause / game-over + state machine | #29 | ✅ |
-| #16 | Combo multiplier x1–x5 | #30 | ⏳ |
-| #17 | High-score persistence | #30 | ⏳ |
+| #16 | Combo multiplier x1–x5 | #30 | ✅ |
+| #17 | High-score persistence | #30 | ✅ |
 | #18 | Playtest round 1 fixes | #31 | ⏳ |
 | #19 | Release docs + tag | #32 | ⏳ |
 
@@ -19,6 +19,10 @@ the playtest, and a repo that's ready to demo and grade.
   (`menu → playing ⇄ paused`, `playing → gameover → playing`). `P` pauses,
   window blur pauses, Enter starts/restarts. World keeps rendering behind every
   overlay. Smoke test updated to leave the title screen.
+- **Aug 25** — `storage.js` (one JSON namespace, guarded) + `systems/combo.js`
+  (kills raise x1→x5, full reset after 2.5 s or on a hit). Scoreboard scores
+  each kill at the pre-kill multiplier. Best score persists; `audio.js` mute
+  moved onto the same wrapper. Smoke test now checks combo + persistence.
 
 ## Playtest (Aug 25, 5 testers) — raw notes → issues
 
