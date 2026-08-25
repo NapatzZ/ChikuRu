@@ -9,7 +9,9 @@ import { createSpawner } from './systems/spawner.js';
 import { createWaveDirector } from './systems/waves.js';
 import { resolveBulletsVsEnemies, resolveEnemiesVsPlayer } from './systems/collision.js';
 import { createScoreboard } from './systems/scoreboard.js';
+import { createCombo } from './systems/combo.js';
 import { createEffects } from './systems/effects.js';
+import { storage } from './storage.js';
 import { createHud } from './ui/hud.js';
 import { drawMenu } from './ui/menu.js';
 import { drawPause, drawGameOver } from './ui/screens.js';
@@ -28,7 +30,7 @@ export class Game {
     this.bus = createEventBus();
     this.state = 'menu'; // menu | playing | paused | gameover
     this.time = 0;
-    this.best = 0;        // wired to persistence in #17
+    this.best = storage.get('bestScore', 0);
     this.isNewBest = false;
     this.debug = new URLSearchParams(window.location.search).has('debug');
 
@@ -38,7 +40,9 @@ export class Game {
     this.particles = createParticlePool();
     this.effects = createEffects();
     this.cam = { ox: 0, oy: 0 };
-    this.scoreboard = createScoreboard(this.bus);
+    this.combo = createCombo();
+    this.scoreboard = createScoreboard(this.bus, () => this.combo.multiplier);
+    this.combo.attach(this.bus); // subscribe after the scoreboard
     this.hud = createHud(this.bus);
 
     this.waves = createWaveDirector();
@@ -78,6 +82,7 @@ export class Game {
     this.spawner.reset();
     this.waves.reset();
     this.scoreboard.reset();
+    this.combo.reset();
     this.hud.reset();
     this.speedMul = 1;
     this.wave = 1;
@@ -94,7 +99,10 @@ export class Game {
   #endRun() {
     this.state = 'gameover';
     this.isNewBest = this.scoreboard.state.score > this.best;
-    if (this.isNewBest) this.best = this.scoreboard.state.score;
+    if (this.isNewBest) {
+      this.best = this.scoreboard.state.score;
+      storage.set('bestScore', this.best);
+    }
     this.audio?.play('gameover');
   }
 
@@ -141,6 +149,7 @@ export class Game {
       }
       this.spawner.update(simDt, this);
       updateEnemies(this.enemies, simDt, this.player, this.speedMul);
+      this.combo.update(simDt);
 
       resolveBulletsVsEnemies(this.bullets, this.enemies, this.bus);
       resolveEnemiesVsPlayer(this.enemies, this.player, this.bus);
@@ -173,8 +182,8 @@ export class Game {
         hearts: this.player.hearts,
         maxHearts: PLAYER.startHearts,
         wave: this.wave,
-        multiplier: this.scoreboard.state.multiplier,
-        comboFill: 0,
+        multiplier: this.combo.multiplier,
+        comboFill: this.combo.fill,
         muted: this.audio ? this.audio.muted : false
       });
     }

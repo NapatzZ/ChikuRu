@@ -2,10 +2,10 @@
  * Owns the running score and kill count. Subscribes to the event bus so it
  * never has to be called from the game loop directly.
  *
- * The combo multiplier is a stub (always 1) until Sprint 4 (#16); the hook is
- * here so scoring code doesn't change when it lands.
+ * `getMultiplier` is read at the moment of each kill (the combo system, #16).
+ * It defaults to `1` so the scoreboard works standalone / in tests.
  */
-export function createScoreboard(bus) {
+export function createScoreboard(bus, getMultiplier = () => 1) {
   const state = {
     score: 0,
     kills: 0,
@@ -14,7 +14,9 @@ export function createScoreboard(bus) {
   };
 
   const offKill = bus.on('enemyKilled', ({ points, x, y }) => {
-    const gain = points * state.multiplier;
+    const multiplier = getMultiplier();
+    const gain = points * multiplier;
+    state.multiplier = multiplier;
     state.score += gain;
     state.kills += 1;
     state.lastGain = { points: gain, x, y, at: performance.now() };
