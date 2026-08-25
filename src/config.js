@@ -81,7 +81,6 @@ export const SPRITE_NAMES = Object.freeze(['player', 'chiikawa', 'hachiware', 'u
 
 export const AUDIO = Object.freeze({
   masterGain: 0.35,
-  storageKey: 'chikuru:muted',
   // name -> { type, freq, freqEnd, duration, gain }
   cues: {
     shoot: { type: 'square', freq: 660, freqEnd: 520, duration: 0.06, gain: 0.25 },
