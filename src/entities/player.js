@@ -28,15 +28,28 @@ export class Player {
   }
 
   update(dt, input) {
-    const axis = input.moveAxis();
-    const dir = normalize(axis.x, axis.y);
-    this.vx = dir.x * PLAYER.speed;
-    this.vy = dir.y * PLAYER.speed;
+    const target = input.moveTarget();
+    if (target) {
+      // Touch: ease toward the finger, capped at the normal move speed.
+      const dx = target.x - this.x;
+      const dy = target.y - this.y;
+      const dist = Math.hypot(dx, dy);
+      const step = Math.min(PLAYER.speed, dist / Math.max(dt, 1e-4));
+      const dir = normalize(dx, dy);
+      this.vx = dir.x * step;
+      this.vy = dir.y * step;
+    } else {
+      const axis = input.moveAxis();
+      const dir = normalize(axis.x, axis.y);
+      this.vx = dir.x * PLAYER.speed;
+      this.vy = dir.y * PLAYER.speed;
+    }
 
     this.x = clamp(this.x + this.vx * dt, this.radius, ARENA.width - this.radius);
     this.y = clamp(this.y + this.vy * dt, this.radius, ARENA.height - this.radius);
 
-    this.facing = input.aimFrom(this.x, this.y);
+    // Touch is single-stick: always fire upward. Mouse aims freely.
+    this.facing = input.isCoarsePointer ? -Math.PI / 2 : input.aimFrom(this.x, this.y);
 
     if (this.invuln > 0) this.invuln -= dt;
     if (this.fireCooldown > 0) this.fireCooldown -= dt;
