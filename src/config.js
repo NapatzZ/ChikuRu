@@ -124,6 +124,10 @@ export const WAVES = Object.freeze({
   intervalFalloff: 0.86,   // interval *= this each wave
   speedPerWave: 0.07,      // +7% enemy speed per wave
   speedMax: 2.2,
+  // New players kept dying in the first seconds (playtest). Ease enemy speed
+  // for a short warm-up, blending back to full by `warmupSeconds`.
+  warmupSeconds: 12,
+  warmupFactor: 0.78,
   bannerSeconds: 1.6,
   weightsStart: [8, 3, 1, 0],   // chiikawa, hachiware, usagi, rakko
   weightsEnd: [3, 5, 4, 3],
