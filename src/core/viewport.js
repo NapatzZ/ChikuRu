@@ -11,6 +11,8 @@ import { ARENA } from '../config.js';
 export function createViewport(mount) {
   const canvas = document.createElement('canvas');
   canvas.id = 'game';
+  canvas.tabIndex = 0; // focusable so keyboard input works without a click
+  canvas.setAttribute('aria-label', 'ChikuRu game. Move with WASD or arrows, aim with the mouse, hold space to shoot.');
   const ctx = canvas.getContext('2d');
   mount.appendChild(canvas);
 
