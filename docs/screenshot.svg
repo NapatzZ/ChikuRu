@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" width="720" height="480" font-family="system-ui, sans-serif">
+  <title>ChikuRu — placeholder screenshot</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#241f3d"/>
+      <stop offset="1" stop-color="#151228"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="480" fill="url(#bg)"/>
+  <rect x="1" y="1" width="718" height="478" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="2"/>
+
+  <!-- HUD -->
+  <text x="16" y="34" fill="#fdf6ff" font-size="26" font-weight="700">012480</text>
+  <text x="16" y="54" fill="#ffd36e" font-size="16" font-weight="700">x3</text>
+  <rect x="16" y="60" width="60" height="4" fill="#ffd36e" opacity="0.25"/>
+  <rect x="16" y="60" width="38" height="4" fill="#ffd36e"/>
+  <text x="360" y="30" fill="#ffffff" fill-opacity="0.7" font-size="15" font-weight="600" text-anchor="middle">WAVE 3</text>
+  <text x="704" y="34" fill="#ff5c8a" font-size="22" text-anchor="end">&#9829; &#9829; &#9829;</text>
+
+  <!-- enemies -->
+  <g stroke="rgba(0,0,0,0.35)" stroke-width="3">
+    <circle cx="180" cy="120" r="20" fill="#f6ead0"/>
+    <circle cx="410" cy="90" r="19" fill="#bfe6f2"/>
+    <circle cx="520" cy="170" r="17" fill="#ffd8a8"/>
+    <circle cx="300" cy="150" r="30" fill="#c9b8a8"/>
+  </g>
+
+  <!-- bullets -->
+  <g fill="#ffe08a">
+    <circle cx="360" cy="300" r="6"/>
+    <circle cx="360" cy="330" r="6"/>
+    <circle cx="372" cy="315" r="6"/>
+  </g>
+
+  <!-- player -->
+  <g transform="translate(360,380)" stroke="#3a2f1c" stroke-width="3">
+    <circle r="22" fill="#fef1c7"/>
+    <circle cx="-7" cy="-3" r="2.6" fill="#2a2118" stroke="none"/>
+    <circle cx="7" cy="-3" r="2.6" fill="#2a2118" stroke="none"/>
+  </g>
+
+  <text x="360" y="452" fill="#ffffff" fill-opacity="0.35" font-size="13" text-anchor="middle">placeholder — capture a real frame with npm start</text>
+</svg>

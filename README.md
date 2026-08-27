@@ -11,10 +11,10 @@ codebase: the work was cut into weekly **sprints**, tasks were handed out as
 > **combo multiplier** (up to ×5). Waves get faster and meaner the longer you
 > last.
 
-![gameplay](docs/screenshot.png)
+![gameplay](docs/screenshot.svg)
 
-<sub>Replace `docs/screenshot.png` with a capture from your machine — see
-[assets/CREDITS.md](assets/CREDITS.md).</sub>
+<sub>Placeholder mock. Drop a real capture at `docs/screenshot.png` and point
+this link at it.</sub>
 
 ## Play it
 
