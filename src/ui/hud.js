@@ -33,7 +33,7 @@ export function createHud(bus) {
   }
 
   function render(ctx, model) {
-    const { score, hearts, maxHearts, wave, multiplier, comboFill } = model;
+    const { score, hearts, maxHearts, wave, multiplier, comboFill, muted } = model;
 
     if (hitFlash > 0) {
       ctx.fillStyle = `rgba(255,80,110,${clamp(hitFlash, 0, 0.35) * 0.9})`;
@@ -74,6 +74,11 @@ export function createHud(bus) {
     ctx.fillStyle = 'rgba(255,255,255,0.7)';
     ctx.font = '600 15px system-ui, sans-serif';
     ctx.fillText(wave ? `WAVE ${wave}` : '', ARENA.width / 2, 30);
+    if (muted) {
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.font = '13px system-ui, sans-serif';
+      ctx.fillText('muted — press M', ARENA.width / 2, 48);
+    }
 
     // floating popups
     ctx.font = '700 18px system-ui, sans-serif';

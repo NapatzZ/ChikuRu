@@ -79,6 +79,19 @@ export const ENEMY_POOL_SIZE = 128;
 /** Sprite names the asset loader tries to fetch (#14). */
 export const SPRITE_NAMES = Object.freeze(['player', 'chiikawa', 'hachiware', 'usagi', 'rakko']);
 
+export const AUDIO = Object.freeze({
+  masterGain: 0.35,
+  storageKey: 'chikuru:muted',
+  // name -> { type, freq, freqEnd, duration, gain }
+  cues: {
+    shoot: { type: 'square', freq: 660, freqEnd: 520, duration: 0.06, gain: 0.25 },
+    hit: { type: 'triangle', freq: 320, freqEnd: 140, duration: 0.12, gain: 0.5 },
+    playerHit: { type: 'sawtooth', freq: 180, freqEnd: 60, duration: 0.3, gain: 0.7 },
+    wave: { type: 'sine', freq: 440, freqEnd: 880, duration: 0.25, gain: 0.4 },
+    gameover: { type: 'sawtooth', freq: 300, freqEnd: 70, duration: 0.7, gain: 0.6 }
+  }
+});
+
 export const JUICE = Object.freeze({
   particlePoolSize: 400,
   killBurst: { count: 14, speed: 220, size: 4, life: 0.55, drag: 2.6, gravity: 260 },

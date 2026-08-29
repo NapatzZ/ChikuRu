@@ -17,9 +17,11 @@ import { createHud } from './ui/hud.js';
  * Keep this file thin: wiring and state transitions only.
  */
 export class Game {
-  constructor(viewport) {
+  constructor(viewport, { sprites = null, audio = null } = {}) {
     this.viewport = viewport;
     this.ctx = viewport.ctx;
+    this.sprites = sprites;
+    this.audio = audio;
     this.input = createInput(viewport);
     this.bus = createEventBus();
     this.state = 'playing'; // menu | playing | paused | gameover  (grows in Sprint 4)
@@ -45,16 +47,24 @@ export class Game {
 
     this.bus.on('enemyKilled', ({ x, y, type }) => {
       emitBurst(this.particles, x, y, JUICE.killBurst, ENEMIES[type].color);
+      this.audio?.play('hit');
     });
     this.bus.on('enemyHit', ({ x, y }) => {
       emitBurst(this.particles, x, y, JUICE.killBurst, 'rgba(255,255,255,0.8)');
+      this.audio?.play('hit');
     });
     this.bus.on('playerHit', ({ x, y }) => {
       emitBurst(this.particles, x, y, JUICE.hitBurst, '#ff5c8a');
       this.effects.shake(JUICE.shakeOnHit.magnitude, JUICE.shakeOnHit.seconds);
       this.effects.hitStop(JUICE.hitStopSeconds);
-      if (this.player.hearts <= 0) this.state = 'gameover';
+      this.audio?.play('playerHit');
+      if (this.player.hearts <= 0) {
+        this.state = 'gameover';
+        this.audio?.play('gameover');
+      }
     });
+
+    this._prevWave = 1;
   }
 
   restart() {
@@ -70,6 +80,7 @@ export class Game {
     this.hud.reset();
     this.speedMul = 1;
     this.wave = 1;
+    this._prevWave = 1;
     this.state = 'playing';
   }
 
@@ -79,16 +90,25 @@ export class Game {
     this.cam.ox = ox;
     this.cam.oy = oy;
 
+    if (this.input.justPressed('mute')) this.audio?.toggleMute();
+
     if (this.state === 'playing' && simDt > 0) {
       this.time += simDt;
       this.player.update(simDt, this.input);
       const shot = this.player.tryFire(this.input);
-      if (shot) fireBullet(this.bullets, shot);
+      if (shot) {
+        fireBullet(this.bullets, shot);
+        this.audio?.play('shoot');
+      }
       updateBullets(this.bullets, simDt);
 
       this.waves.update(simDt);
       this.speedMul = this.waves.speedMul;
       this.wave = this.waves.wave;
+      if (this.wave !== this._prevWave) {
+        this._prevWave = this.wave;
+        this.audio?.play('wave');
+      }
       this.spawner.update(simDt, this);
       updateEnemies(this.enemies, simDt, this.player, this.speedMul);
 
@@ -124,7 +144,8 @@ export class Game {
       maxHearts: PLAYER.startHearts,
       wave: this.wave,
       multiplier: this.scoreboard.state.multiplier,
-      comboFill: 0
+      comboFill: 0,
+      muted: this.audio ? this.audio.muted : false
     });
     const banner = this.waves.banner();
     if (banner && this.state === 'playing') this.#drawBanner(ctx, banner);

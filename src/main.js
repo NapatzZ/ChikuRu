@@ -1,25 +1,41 @@
 import { createViewport } from './core/viewport.js';
 import { createLoop } from './core/loop.js';
+import { loadSprites } from './assetLoader.js';
+import { createAudio } from './audio.js';
 import { Game } from './game.js';
 
 const mount = document.getElementById('app');
 const fallback = document.getElementById('boot-fallback');
-if (fallback) fallback.remove();
 
 const viewport = createViewport(mount);
-const game = new Game(viewport);
+const audio = createAudio();
+
+// Kick sprite loading off immediately; the game renders fine without them.
+const spritesPromise = loadSprites();
+
+const game = new Game(viewport, { audio });
+spritesPromise.then((sprites) => {
+  game.sprites = sprites;
+});
 
 const loop = createLoop({
   update: (dt) => game.update(dt),
   render: (alpha) => game.render(alpha, loop.stats)
 });
 
-// Pause the clock while the tab is hidden so we don't fast-forward on return.
+// Audio contexts must be resumed from a user gesture.
+function unlockAudio() {
+  audio.resume();
+}
+window.addEventListener('pointerdown', unlockAudio, { once: true });
+window.addEventListener('keydown', unlockAudio, { once: true });
+
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) loop.stop();
   else loop.start();
 });
 
+if (fallback) fallback.remove();
 loop.start();
 
-if (game.debug) window.__chikuru = { game, loop, viewport };
+if (game.debug) window.__chikuru = { game, loop, viewport, audio };

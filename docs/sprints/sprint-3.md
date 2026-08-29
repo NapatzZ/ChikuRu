@@ -10,8 +10,8 @@ enough feedback ("juice") + sound that hits land well.
 | #10 | Enemy archetypes (hachiware, usagi, rakko) | #25 | ✅ |
 | #11 | Wave director + difficulty curve | #26 | ✅ |
 | #12 | Particles + screen shake + hit-stop | #27 | ✅ |
-| #13 | Procedural audio + mute | #28 | ⏳ |
-| #14 | Asset loader + sprite fallback | #28 | ⏳ |
+| #13 | Procedural audio + mute | #28 | ✅ |
+| #14 | Asset loader + sprite fallback | #28 | ✅ |
 
 ## Standup log
 
@@ -34,8 +34,16 @@ enough feedback ("juice") + sound that hits land well.
 "M" = ~half a day for one person. `#11` and `#12` are M; `#10` was S; `#13`/`#14`
 together are M.
 
-## Demo checkpoint (target)
+- **Aug 21** — `audio.js` (WebAudio synth, one oscillator + envelope per cue,
+  master gain, mute persisted to `localStorage`) and `assetLoader.js` (tries
+  `.png` then the committed `.svg`, else `null` → procedural draw). Five
+  original placeholder SVGs shipped. `M` toggles mute.
+- **Aug 22** — Review fixes + retro. `test/smoke.mjs` added (runs the real
+  loop for 30 s under a DOM stub); wired into `npm test` and CI.
+
+## Demo checkpoint ✅
 
 Difficulty visibly ramps: spawn rate climbs, enemies speed up, the mix shifts
 toward tougher types. Kills throw particles, hits shake the screen, and every
-event has a distinct sound.
+event has a distinct sound. Placeholder sprites render; dropping PNGs into
+`assets/sprites/` swaps them with no code change.
