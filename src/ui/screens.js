@@ -38,13 +38,15 @@ export function drawGameOver(ctx, { score, best, isNewBest }) {
     ARENA.height / 2 + 4,
     '600 22px system-ui, sans-serif'
   );
-  centerText(
-    ctx,
-    isNewBest ? 'New best!' : `Best  ${String(best).padStart(6, '0')}`,
-    ARENA.height / 2 + 34,
-    '600 18px system-ui, sans-serif',
-    '#ffd36e'
-  );
+  if (isNewBest || best > 0) {
+    centerText(
+      ctx,
+      isNewBest ? 'New best!' : `Best  ${String(best).padStart(6, '0')}`,
+      ARENA.height / 2 + 34,
+      '600 18px system-ui, sans-serif',
+      '#ffd36e'
+    );
+  }
   centerText(
     ctx,
     'Press Enter to play again',

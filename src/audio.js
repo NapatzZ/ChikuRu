@@ -1,4 +1,5 @@
 import { AUDIO } from './config.js';
+import { storage } from './storage.js';
 
 /**
  * All sound is synthesised at runtime — no audio files in the repo. Each cue is
@@ -11,7 +12,7 @@ import { AUDIO } from './config.js';
 export function createAudio() {
   let ctx = null;
   let master = null;
-  let muted = readMuted();
+  let muted = storage.get('muted', false) === true;
 
   function ensureContext() {
     if (ctx) return;
@@ -21,22 +22,6 @@ export function createAudio() {
     master = ctx.createGain();
     master.gain.value = muted ? 0 : AUDIO.masterGain;
     master.connect(ctx.destination);
-  }
-
-  function readMuted() {
-    try {
-      return localStorage.getItem(AUDIO.storageKey) === '1';
-    } catch {
-      return false;
-    }
-  }
-
-  function persistMuted() {
-    try {
-      localStorage.setItem(AUDIO.storageKey, muted ? '1' : '0');
-    } catch {
-      /* storage unavailable — mute is session-only, fine */
-    }
   }
 
   function play(name) {
@@ -77,7 +62,7 @@ export function createAudio() {
       if (master) {
         master.gain.value = muted ? 0 : AUDIO.masterGain;
       }
-      persistMuted();
+      storage.set('muted', muted);
       return muted;
     },
     play

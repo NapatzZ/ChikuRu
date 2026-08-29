@@ -70,7 +70,12 @@ globalThis.document = {
   addEventListener: noop
 };
 globalThis.performance = { now: () => Date.now() };
-globalThis.localStorage = { getItem: () => null, setItem: noop };
+const _store = new Map();
+globalThis.localStorage = {
+  getItem: (k) => (_store.has(k) ? _store.get(k) : null),
+  setItem: (k, v) => _store.set(k, String(v)),
+  removeItem: (k) => _store.delete(k)
+};
 globalThis.Image = function () {
   setTimeout(() => this.onerror && this.onerror(), 0);
 };
@@ -112,13 +117,23 @@ const before = game.scoreboard.state.score;
 game.bus.emit('enemyKilled', { type: 'chiikawa', points: 100, x: 50, y: 50 });
 assert(game.scoreboard.state.score === before + 100, 'score did not increase on kill');
 
-// Game-over path
+// Combo path: enough kills should push the multiplier above x1
+for (let i = 0; i < 12; i++) {
+  game.bus.emit('enemyKilled', { type: 'chiikawa', points: 100, x: 50, y: 50 });
+}
+assert(game.combo.multiplier > 1, `combo multiplier stuck at x${game.combo.multiplier}`);
+
+// Game-over + persistence path
 game.player.hit = () => true;
 game.player.hearts = 0;
 game.bus.emit('playerHit', { x: 50, y: 50 });
 assert(game.state === 'gameover', 'did not enter game over at 0 hearts');
+assert(game.isNewBest, 'first run should be a new best');
+
+const reboot = new Game(viewport, { audio: createAudio() });
+assert(reboot.best === game.best, `best score did not persist (${reboot.best} vs ${game.best})`);
 
 console.log(
   `PASS  wave=${game.wave}  score=${game.scoreboard.state.score}  ` +
-    `particles=${game.particles.activeCount}`
+    `mult=x${game.combo.multiplier}  best=${reboot.best}`
 );
