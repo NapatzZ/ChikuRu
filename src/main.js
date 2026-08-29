@@ -31,9 +31,14 @@ window.addEventListener('pointerdown', unlockAudio, { once: true });
 window.addEventListener('keydown', unlockAudio, { once: true });
 
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) loop.stop();
-  else loop.start();
+  if (document.hidden) {
+    game.pauseForBlur();
+    loop.stop();
+  } else {
+    loop.start();
+  }
 });
+window.addEventListener('blur', () => game.pauseForBlur());
 
 if (fallback) fallback.remove();
 loop.start();

@@ -91,6 +91,9 @@ function assert(cond, msg) {
 const viewport = createViewport(document.getElementById('app'));
 const game = new Game(viewport, { audio: createAudio() });
 
+assert(game.state === 'menu', `should boot into the menu, got ${game.state}`);
+game.restart(); // leave the title screen
+
 // Keep the headless player alive so the wave curve gets exercised.
 game.player.hit = () => false;
 
