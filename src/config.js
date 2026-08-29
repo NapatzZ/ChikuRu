@@ -92,3 +92,20 @@ export const SPAWN = Object.freeze({
   minInterval: 0.38,   // floor once difficulty has ramped
   marginX: 40          // keep spawns away from the very edge
 });
+
+/**
+ * Difficulty curve. The wave director advances one wave every
+ * `secondsPerWave`, shortens the spawn interval geometrically, raises the
+ * enemy speed multiplier linearly (capped), and lerps the spawn-type weights
+ * from `weightsStart` toward `weightsEnd` over `weightsRampWaves`.
+ */
+export const WAVES = Object.freeze({
+  secondsPerWave: 20,
+  intervalFalloff: 0.86,   // interval *= this each wave
+  speedPerWave: 0.07,      // +7% enemy speed per wave
+  speedMax: 2.2,
+  bannerSeconds: 1.6,
+  weightsStart: [8, 3, 1, 0],   // chiikawa, hachiware, usagi, rakko
+  weightsEnd: [3, 5, 4, 3],
+  weightsRampWaves: 8
+});

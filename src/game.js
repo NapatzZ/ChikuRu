@@ -1,11 +1,11 @@
-import { ARENA, SPAWN, PLAYER, ENEMY_TYPES } from './config.js';
-import { weightedIndex } from './util/math.js';
+import { ARENA, PLAYER } from './config.js';
 import { createInput } from './input.js';
 import { createEventBus } from './util/events.js';
 import { Player } from './entities/player.js';
 import { createBulletPool, fireBullet, updateBullets, renderBullets } from './entities/bullet.js';
 import { createEnemyPool, updateEnemies, renderEnemies } from './entities/enemy.js';
 import { createSpawner } from './systems/spawner.js';
+import { createWaveDirector } from './systems/waves.js';
 import { resolveBulletsVsEnemies, resolveEnemiesVsPlayer } from './systems/collision.js';
 import { createScoreboard } from './systems/scoreboard.js';
 import { createHud } from './ui/hud.js';
@@ -29,18 +29,14 @@ export class Game {
     this.enemies = createEnemyPool();
     this.scoreboard = createScoreboard(this.bus);
     this.hud = createHud(this.bus);
-    this.wave = 0;
 
-    // Interim: fixed interval + weighted random mix. The wave director (#11)
-    // replaces both callbacks with a time-based curve next.
+    this.waves = createWaveDirector();
     this.spawner = createSpawner(this.enemies, {
-      getInterval: () => SPAWN.baseInterval,
-      pickType: () => {
-        const i = weightedIndex([6, 4, 3, 1]); // chiikawa..rakko
-        return ENEMY_TYPES[i];
-      }
+      getInterval: () => this.waves.interval,
+      pickType: () => this.waves.pickType()
     });
     this.speedMul = 1;
+    this.wave = 1;
 
     this.bus.on('playerHit', () => {
       if (this.player.hearts <= 0) this.state = 'gameover';
@@ -53,8 +49,11 @@ export class Game {
     this.bullets.releaseAll();
     this.enemies.releaseAll();
     this.spawner.reset();
+    this.waves.reset();
     this.scoreboard.reset();
     this.hud.reset();
+    this.speedMul = 1;
+    this.wave = 1;
     this.state = 'playing';
   }
 
@@ -66,6 +65,9 @@ export class Game {
       if (shot) fireBullet(this.bullets, shot);
       updateBullets(this.bullets, dt);
 
+      this.waves.update(dt);
+      this.speedMul = this.waves.speedMul;
+      this.wave = this.waves.wave;
       this.spawner.update(dt, this);
       updateEnemies(this.enemies, dt, this.player, this.speedMul);
 
@@ -96,6 +98,8 @@ export class Game {
       multiplier: this.scoreboard.state.multiplier,
       comboFill: 0
     });
+    const banner = this.waves.banner();
+    if (banner && this.state === 'playing') this.#drawBanner(ctx, banner);
     if (this.state === 'gameover') this.#drawGameOver(ctx);
     if (this.debug) this.#drawDebug(ctx, stats);
   }
@@ -110,6 +114,15 @@ export class Game {
     ctx.strokeStyle = 'rgba(255,255,255,0.06)';
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, ARENA.width - 2, ARENA.height - 2);
+  }
+
+  #drawBanner(ctx, text) {
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.font = '700 40px system-ui, sans-serif';
+    ctx.fillText(text, ARENA.width / 2, ARENA.height * 0.32);
+    ctx.restore();
   }
 
   #drawGameOver(ctx) {
