@@ -7,10 +7,14 @@ export default [
       globals: {
         window: 'readonly',
         document: 'readonly',
+        navigator: 'readonly',
         requestAnimationFrame: 'readonly',
         cancelAnimationFrame: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
         performance: 'readonly',
         localStorage: 'readonly',
+        URLSearchParams: 'readonly',
         AudioContext: 'readonly',
         Image: 'readonly',
         console: 'readonly'
