@@ -9,7 +9,7 @@ enough feedback ("juice") + sound that hits land well.
 | --- | --- | --- | --- |
 | #10 | Enemy archetypes (hachiware, usagi, rakko) | #25 | ✅ |
 | #11 | Wave director + difficulty curve | #26 | ✅ |
-| #12 | Particles + screen shake + hit-stop | #27 | ⏳ |
+| #12 | Particles + screen shake + hit-stop | #27 | ✅ |
 | #13 | Procedural audio + mute | #28 | ⏳ |
 | #14 | Asset loader + sprite fallback | #28 | ⏳ |
 
@@ -24,6 +24,10 @@ enough feedback ("juice") + sound that hits land well.
   (floor 0.38 s), enemy speed `+7%`/wave (cap x2.2), type weights lerp
   `[8,3,1,0] → [3,5,4,3]` over 8 waves. `game.js` reads `speedMul`/`wave`;
   spawner reads `interval`/`pickType`. Big `WAVE N` banner on change.
+- **Aug 20** — `entities/particle.js` (pooled burst) + `systems/effects.js`
+  (shake + hit-stop). Kills spray the enemy's colour; player hits do a pink
+  burst, ~14 px shake, and 80 ms of frozen sim. `util/env.js` reads
+  `prefers-reduced-motion` once and both effects no-op when it's set.
 
 ## Reference estimate (from Sprint 2 retro)
 

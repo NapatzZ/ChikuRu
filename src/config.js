@@ -79,6 +79,14 @@ export const ENEMY_POOL_SIZE = 128;
 /** Sprite names the asset loader tries to fetch (#14). */
 export const SPRITE_NAMES = Object.freeze(['player', 'chiikawa', 'hachiware', 'usagi', 'rakko']);
 
+export const JUICE = Object.freeze({
+  particlePoolSize: 400,
+  killBurst: { count: 14, speed: 220, size: 4, life: 0.55, drag: 2.6, gravity: 260 },
+  hitBurst: { count: 18, speed: 180, size: 5, life: 0.7, drag: 2.0, gravity: 40 },
+  shakeOnHit: { magnitude: 14, seconds: 0.35 },
+  hitStopSeconds: 0.08 // frozen sim time on a player hit
+});
+
 export const COMBO = Object.freeze({
   // Combo multiplier is stubbed at x1 in Sprint 2; full logic lands in #16.
   decaySeconds: 2.5,
