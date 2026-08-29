@@ -41,6 +41,7 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('blur', () => game.pauseForBlur());
 
 if (fallback) fallback.remove();
+viewport.canvas.focus();
 loop.start();
 
 if (game.debug) window.__chikuru = { game, loop, viewport, audio };

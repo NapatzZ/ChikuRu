@@ -19,6 +19,7 @@ export function createWaveDirector() {
     speedMul: 1,
     interval: SPAWN.baseInterval,
     weights: WAVES.weightsStart.slice(),
+    _baseSpeedMul: 1,
     _banner: 0
   };
 
@@ -28,13 +29,20 @@ export function createWaveDirector() {
       SPAWN.minInterval,
       SPAWN.baseInterval * Math.pow(WAVES.intervalFalloff, w - 1)
     );
-    state.speedMul = clamp(1 + WAVES.speedPerWave * (w - 1), 1, WAVES.speedMax);
+    state._baseSpeedMul = clamp(1 + WAVES.speedPerWave * (w - 1), 1, WAVES.speedMax);
 
     const t = clamp((w - 1) / WAVES.weightsRampWaves, 0, 1);
     state.weights = WAVES.weightsStart.map((s, i) => lerp(s, WAVES.weightsEnd[i], t));
   }
 
+  /** 1 at the end of warm-up, `warmupFactor` at t=0, linear in between. */
+  function warmup() {
+    if (state.elapsed >= WAVES.warmupSeconds) return 1;
+    return lerp(WAVES.warmupFactor, 1, state.elapsed / WAVES.warmupSeconds);
+  }
+
   recompute();
+  state.speedMul = state._baseSpeedMul * warmup();
 
   return {
     state,
@@ -47,6 +55,7 @@ export function createWaveDirector() {
       state.wave = 1;
       state._banner = 0;
       recompute();
+      state.speedMul = state._baseSpeedMul * warmup();
     },
 
     update(dt) {
@@ -59,6 +68,7 @@ export function createWaveDirector() {
       } else if (state._banner > 0) {
         state._banner -= dt;
       }
+      state.speedMul = state._baseSpeedMul * warmup();
     },
 
     pickType() {

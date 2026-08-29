@@ -10,8 +10,11 @@ the playtest, and a repo that's ready to demo and grade.
 | #15 | Menu / pause / game-over + state machine | #29 | ✅ |
 | #16 | Combo multiplier x1–x5 | #30 | ✅ |
 | #17 | High-score persistence | #30 | ✅ |
-| #18 | Playtest round 1 fixes | #31 | ⏳ |
-| #19 | Release docs + tag | #32 | ⏳ |
+| #18 | Playtest round 1 fixes | #34 | ✅ |
+| #19 | Release docs + tag | #35 | ⏳ |
+
+Playtest bugs filed and fixed in PR #34: #31 (corner shots), #32 (early enemy
+speed), #33 (touch controls).
 
 ## Standup log
 
@@ -23,6 +26,10 @@ the playtest, and a repo that's ready to demo and grade.
   (kills raise x1→x5, full reset after 2.5 s or on a hit). Scoreboard scores
   each kill at the pre-kill multiplier. Best score persists; `audio.js` mute
   moved onto the same wrapper. Smoke test now checks combo + persistence.
+- **Aug 26** — Playtest fixes (#34): aim defaults up until the mouse moves;
+  window-drag tracking; touch controls (drag to move, hold to shoot up);
+  enemy-speed warm-up to 0.78x for 12 s; focusable canvas + focus ring +
+  aria-label. `docs/BALANCE.md` added.
 
 ## Playtest (Aug 25, 5 testers) — raw notes → issues
 

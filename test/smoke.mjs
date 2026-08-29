@@ -63,8 +63,11 @@ globalThis.document = {
     style: {},
     width: 0,
     height: 0,
+    tabIndex: 0,
     getContext: fakeCtx,
     getBoundingClientRect: () => ({ left: 0, top: 0 }),
+    setAttribute: noop,
+    focus: noop,
     addEventListener: noop
   }),
   addEventListener: noop
