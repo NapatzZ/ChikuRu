@@ -26,3 +26,28 @@ export const BULLET = Object.freeze({
   lifeSeconds: 1.8,
   poolSize: 256
 });
+
+/**
+ * Enemy archetypes. `behaviour` picks the movement function in
+ * `entities/enemy.js`. More types land in Sprint 3.
+ */
+export const ENEMIES = Object.freeze({
+  chiikawa: {
+    behaviour: 'homing',
+    radius: 20,
+    speed: 82,         // px/s, before the wave multiplier
+    hp: 1,
+    points: 100,
+    turnRate: 1.4,     // rad/s toward the player
+    color: '#f6ead0'
+  }
+});
+
+export const ENEMY_POOL_SIZE = 128;
+
+export const SPAWN = Object.freeze({
+  startDelay: 1.5,     // grace period at the start of a run
+  baseInterval: 1.5,   // seconds between spawns at wave 1
+  minInterval: 0.38,   // floor once difficulty has ramped
+  marginX: 40          // keep spawns away from the very edge
+});

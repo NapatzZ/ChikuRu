@@ -1,7 +1,9 @@
-import { ARENA } from './config.js';
+import { ARENA, SPAWN } from './config.js';
 import { createInput } from './input.js';
 import { Player } from './entities/player.js';
 import { createBulletPool, fireBullet, updateBullets, renderBullets } from './entities/bullet.js';
+import { createEnemyPool, updateEnemies, renderEnemies } from './entities/enemy.js';
+import { createSpawner } from './systems/spawner.js';
 
 /**
  * Orchestrator. Holds the world and delegates behaviour to entities/systems.
@@ -18,12 +20,22 @@ export class Game {
 
     this.player = new Player();
     this.bullets = createBulletPool();
+    this.enemies = createEnemyPool();
+
+    // Sprint 2: constant difficulty. The wave director replaces these in #11.
+    this.spawner = createSpawner(this.enemies, {
+      getInterval: () => SPAWN.baseInterval,
+      pickType: () => 'chiikawa'
+    });
+    this.speedMul = 1;
   }
 
   restart() {
     this.time = 0;
     this.player.reset();
     this.bullets.releaseAll();
+    this.enemies.releaseAll();
+    this.spawner.reset();
     this.state = 'playing';
   }
 
@@ -34,6 +46,9 @@ export class Game {
       const shot = this.player.tryFire(this.input);
       if (shot) fireBullet(this.bullets, shot);
       updateBullets(this.bullets, dt);
+
+      this.spawner.update(dt, this);
+      updateEnemies(this.enemies, dt, this.player, this.speedMul);
     }
     this.input.endFrame();
   }
@@ -42,6 +57,7 @@ export class Game {
     const { ctx } = this;
     this.viewport.beginFrame();
     this.#drawBackdrop(ctx);
+    renderEnemies(this.enemies, ctx, this.sprites);
     renderBullets(this.bullets, ctx);
     this.player.render(ctx, this.sprites);
     if (this.debug) this.#drawDebug(ctx, stats);
@@ -66,7 +82,8 @@ export class Game {
     const fps = stats ? stats.fps : 0;
     const ups = stats ? stats.updates : 0;
     ctx.fillText(
-      `state=${this.state}  t=${this.time.toFixed(1)}s  fps=${fps}  steps/frame=${ups}  hearts=${this.player.hearts}`,
+      `state=${this.state}  t=${this.time.toFixed(1)}s  fps=${fps}  steps/frame=${ups}  ` +
+        `hearts=${this.player.hearts}  enemies=${this.enemies.activeCount}`,
       12,
       20
     );
