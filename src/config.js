@@ -45,6 +45,13 @@ export const ENEMIES = Object.freeze({
 
 export const ENEMY_POOL_SIZE = 128;
 
+export const COMBO = Object.freeze({
+  // Combo multiplier is stubbed at x1 in Sprint 2; full logic lands in #16.
+  decaySeconds: 2.5,
+  thresholds: [0, 4, 9, 16, 25], // kills needed for x1..x5
+  max: 5
+});
+
 export const SPAWN = Object.freeze({
   startDelay: 1.5,     // grace period at the start of a run
   baseInterval: 1.5,   // seconds between spawns at wave 1

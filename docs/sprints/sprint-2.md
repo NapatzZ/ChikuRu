@@ -8,9 +8,9 @@ hearts go down, and the run ends at zero hearts.
 | Issue | Task | PR | Status |
 | --- | --- | --- | --- |
 | #5 | Basic enemy (chiikawa) + spawner | #22 | ✅ |
-| #6 | Collision system | #23 | ⏳ |
-| #7 | Scoreboard + points | #23 | ⏳ |
-| #8 | Hearts / HP + game over | #23 | ⏳ |
+| #6 | Collision system | #23 | ✅ |
+| #7 | Scoreboard + points | #23 | ✅ |
+| #8 | Hearts / HP + game over | #23 | ✅ |
 | #9 | HUD | #24 | ⏳ |
 
 ## Standup log
@@ -20,6 +20,10 @@ hearts go down, and the run ends at zero hearts.
 - **Aug 11** — `spawner.js` fires on a timer and asks a provider for interval +
   type, so the wave director can slot in later without touching it. Constant
   1.5 s / chiikawa for now.
+- **Aug 12** — `events.js` bus + `collision.js`. Systems now communicate by
+  event (`enemyKilled`, `enemyHit`, `playerHit`) instead of holding refs.
+- **Aug 13** — `scoreboard.js` on the bus; heart loss + `gameover` state with
+  Enter/click to restart. Core loop closes end to end. Combo left at x1.
 
 ## Demo checkpoint (target)
 
