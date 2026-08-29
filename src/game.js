@@ -1,4 +1,5 @@
-import { ARENA, SPAWN, PLAYER } from './config.js';
+import { ARENA, SPAWN, PLAYER, ENEMY_TYPES } from './config.js';
+import { weightedIndex } from './util/math.js';
 import { createInput } from './input.js';
 import { createEventBus } from './util/events.js';
 import { Player } from './entities/player.js';
@@ -30,10 +31,14 @@ export class Game {
     this.hud = createHud(this.bus);
     this.wave = 0;
 
-    // Sprint 2: constant difficulty. The wave director replaces these in #11.
+    // Interim: fixed interval + weighted random mix. The wave director (#11)
+    // replaces both callbacks with a time-based curve next.
     this.spawner = createSpawner(this.enemies, {
       getInterval: () => SPAWN.baseInterval,
-      pickType: () => 'chiikawa'
+      pickType: () => {
+        const i = weightedIndex([6, 4, 3, 1]); // chiikawa..rakko
+        return ENEMY_TYPES[i];
+      }
     });
     this.speedMul = 1;
 
