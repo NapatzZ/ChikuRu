@@ -72,6 +72,8 @@ npm test                # headless smoke test — runs the real loop for 30 s
 - [`docs/SPRINT_PLAN.md`](docs/SPRINT_PLAN.md) — the four sprints and the backlog
 - [`docs/sprints/`](docs/sprints/) — per-sprint working notes + standup logs
 - [`docs/retrospectives/`](docs/retrospectives/) — keep / drop / try
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — lightweight architecture decision records
+- [`CHANGELOG.md`](CHANGELOG.md) — what shipped in each version, tagged by issue
 - [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) — the 3-minute class walkthrough
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — branch / commit / PR workflow
 

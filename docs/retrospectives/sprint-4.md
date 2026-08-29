@@ -25,7 +25,8 @@ demo-ready repo. **Met.** `v1.0.0` tagged.
 - Open PRs as **drafts** on day 1 of the task, not when the code is done — the
   reviewer sees direction early.
 - A `docs/DECISIONS.md` (lightweight ADRs) for choices bigger than a config
-  number, e.g. "no framework", "event bus over direct calls".
+  number, e.g. "no framework", "event bus over direct calls". _(done — added
+  post-release in #41)_
 - Pair on the first PR of each sprint to align on style before diverging.
 
 ## Project totals
