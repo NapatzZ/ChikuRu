@@ -1,45 +1,84 @@
 # ChikuRu 🎯
 
-A browser arcade shooter built as the **term project for ENG COMMU**. The
-repository doubles as a *simulation of professional collaboration*: work is
-broken into weekly **sprints**, tasks are handed out as **GitHub Issues**, and
-every change lands through a reviewed **Pull Request**.
+A browser arcade shooter, built as the **term project for ENG COMMU**. The
+repository is also a worked example of collaborating in English inside a shared
+codebase: the work was cut into weekly **sprints**, tasks were handed out as
+**GitHub Issues**, and every change landed through a reviewed **Pull Request**.
 
-> Gameplay in one line: cute blob enemies rush your character from the top of
-> the screen — **shoot them for points**, but if one reaches you it costs a
-> **heart**. Lose all three hearts and it's game over.
+> **Gameplay:** cute blob enemies rush your character from the top of the
+> screen. **Shoot them for points.** If one reaches you it costs a **heart** —
+> lose all three and it's game over. Chain kills without getting hit to build a
+> **combo multiplier** (up to ×5). Waves get faster and meaner the longer you
+> last.
 
-## Status
+![gameplay](docs/screenshot.svg)
 
-🚧 Early development — see [`docs/SPRINT_PLAN.md`](docs/SPRINT_PLAN.md) for the
-roadmap and [`docs/PROJECT_CHARTER.md`](docs/PROJECT_CHARTER.md) for scope,
-roles, and communication norms.
+<sub>Placeholder mock. Drop a real capture at `docs/screenshot.png` and point
+this link at it.</sub>
 
-## Quick start
+## Play it
 
-The game is plain HTML + ES modules, so it needs to be served over HTTP:
+Plain HTML + ES modules — it just needs to be served over HTTP:
 
 ```bash
-# any one of these
-npx serve .
-python3 -m http.server 8080
+npm start                 # static server on http://localhost:8080
+# or: python3 -m http.server 8080
 ```
 
-Then open <http://localhost:8080>.
+Add `?debug` to the URL for an fps / wave / entity overlay.
 
-## Repository layout
+## Controls
 
-| Path | Purpose |
-| --- | --- |
-| `src/` | Game source (ES modules) |
-| `assets/` | Sprites and audio (placeholder art only — see `assets/CREDITS.md`) |
-| `styles/` | Page and HUD styling |
-| `docs/` | Charter, sprint plans, meeting notes, retrospectives |
-| `.github/` | Issue / PR templates and CI workflow |
+| Action | Keyboard / Mouse | Touch |
+| --- | --- | --- |
+| Move | `WASD` or arrow keys | drag |
+| Aim | mouse | — (fires upward) |
+| Shoot | hold `Space` or the mouse button | tap / hold |
+| Pause | `P` (also on focus loss) | — |
+| Mute | `M` | — |
+| Start / restart | `Enter` or click | tap |
+
+## How it's built
+
+No framework, no bundler. `src/game.js` is a thin orchestrator; behaviour lives
+in small modules that talk over an event bus.
+
+```
+src/
+├── main.js            boot: viewport + loop + asset/audio load
+├── game.js            state machine + wiring
+├── config.js          every tunable number (see docs/BALANCE.md)
+├── core/              viewport (DPI + letterbox), fixed-timestep loop
+├── input.js           keyboard / mouse / touch
+├── entities/          player, bullet, enemy, particle  (all pooled)
+├── systems/           spawner, waves, collision, scoreboard, combo, effects
+├── ui/                hud, menu, screens
+├── audio.js           WebAudio synth (no audio files)
+├── assetLoader.js     optional sprites, procedural fallback
+└── storage.js         namespaced localStorage (best score, mute)
+```
+
+Run the checks:
+
+```bash
+npm run lint            # ESLint
+npm test                # headless smoke test — runs the real loop for 30 s
+```
+
+## The collaboration side (ENG COMMU)
+
+- [`docs/PROJECT_CHARTER.md`](docs/PROJECT_CHARTER.md) — scope, roles,
+  communication norms
+- [`docs/SPRINT_PLAN.md`](docs/SPRINT_PLAN.md) — the four sprints and the backlog
+- [`docs/sprints/`](docs/sprints/) — per-sprint working notes + standup logs
+- [`docs/retrospectives/`](docs/retrospectives/) — keep / drop / try
+- [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) — the 3-minute class walkthrough
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — branch / commit / PR workflow
 
 ## Assets & licensing
 
-No official *Chiikawa* artwork ships in this repo. Everything under
-`assets/sprites/` is original placeholder art. See
-[`assets/CREDITS.md`](assets/CREDITS.md) for how to drop in your own images
-locally.
+No official *Chiikawa* artwork or audio is in this repository. Everything under
+`assets/sprites/` is original placeholder art; sound is generated at runtime.
+"Chiikawa" (ちいかわ) and its characters belong to Nagano / their rights
+holders. See [`assets/CREDITS.md`](assets/CREDITS.md) to swap in your own images
+locally. Code is [MIT](LICENSE).

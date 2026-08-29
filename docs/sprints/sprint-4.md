@@ -11,7 +11,7 @@ the playtest, and a repo that's ready to demo and grade.
 | #16 | Combo multiplier x1–x5 | #30 | ✅ |
 | #17 | High-score persistence | #30 | ✅ |
 | #18 | Playtest round 1 fixes | #34 | ✅ |
-| #19 | Release docs + tag | #35 | ⏳ |
+| #19 | Release docs + tag | #35 | ✅ |
 
 Playtest bugs filed and fixed in PR #34: #31 (corner shots), #32 (early enemy
 speed), #33 (touch controls).
@@ -39,7 +39,13 @@ speed), #33 (touch controls).
 - "I didn't know I could pause" → covered by the new menu controls list (#29)
 - Nobody found the mute until told → acceptable; it's on the menu now
 
-## Demo checkpoint (target)
+- **Aug 27** — Release docs: README rewrite, `CHANGELOG.md` (1.0.0),
+  `docs/DEMO_SCRIPT.md`, sprint 4 retro, placeholder screenshot. Version
+  bumped to 1.0.0.
+- **Aug 28** — Review + merge #35; tag `v1.0.0`. Demo rehearsed.
+
+## Demo checkpoint ✅
 
 Title screen → play → pause/resume → die → see best score → restart, all
-without a reload. Combo multiplier visibly rewards streaks. `v1.0.0` tagged.
+without a reload. Combo multiplier visibly rewards streaks. `v1.0.0` tagged;
+CI green on `main`.
