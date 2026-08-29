@@ -9,8 +9,8 @@ frame-rate-independent loop, with a player that moves and shoots.
 | --- | --- | --- | --- |
 | #1 | Canvas bootstrap + responsive resize | #20 | ✅ |
 | #2 | Fixed-timestep loop | #20 | ✅ |
-| #3 | Player movement | #21 | in progress |
-| #4 | Shooting / bullet pool | #21 | todo |
+| #3 | Player movement | #21 | ✅ |
+| #4 | Shooting / bullet pool | #21 | ✅ |
 
 ## Standup log
 
@@ -18,8 +18,13 @@ frame-rate-independent loop, with a player that moves and shoots.
   (accumulator). Blocker: none.
 - **Aug 4** — `Game` class wired to the loop; arena backdrop + `?debug`
   overlay showing fps and steps/frame. Next: player.
+- **Aug 5** — `input.js` (keyboard + pointer) and `Player` with normalised
+  diagonal movement, clamped to the arena.
+- **Aug 6** — Bullet `Pool` + cursor-aimed shooting at a capped 8 shots/s.
+- **Aug 7** — Playtest: 360 px/s felt twitchy, dropped to 340. Sprint goal
+  met — demo recorded.
 
-## Demo checkpoint (target)
+## Demo checkpoint
 
 Player circle moves with WASD/arrows and fires bullets toward the mouse; frame
 counter holds at 60 fps with 2 steps/frame on a 60 Hz display.
